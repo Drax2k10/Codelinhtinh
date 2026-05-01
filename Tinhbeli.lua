@@ -60,8 +60,8 @@ task.spawn(function()
 		local perHour = elapsed > 0 and (gainedTotal / elapsed) * 3600 or 0
 
 		text.Text =
-			"💰 Beli Gain: " .. tostring(gainedTotal) .. "\n" ..
-			"⏱ Time: " .. formatTime(elapsed) .. "\n" ..
-			"📈 /Hour: " .. math.floor(perHour)
+			"Beli Farm: " .. tostring(gainedTotal) .. "\n" ..
+			"Time Farm: " .. formatTime(elapsed) .. "\n" ..
+			"Beli/Hour: " .. math.floor(perHour)
 	end
 end)
