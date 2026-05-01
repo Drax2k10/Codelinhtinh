@@ -1,6 +1,14 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+
+-- =========================
+-- CONFIG
+-- =========================
 local MAX_SPIKE = 10_000_000
+
+-- =========================
+-- GET BELI
+-- =========================
 local data = player:WaitForChild("Data", 10)
 local beli = data and data:WaitForChild("Beli", 10)
 
@@ -9,20 +17,23 @@ if not beli then
 	return
 end
 
+-- =========================
+-- GUI
+-- =========================
 local gui = Instance.new("ScreenGui")
 gui.Name = "FarmStatsGUI"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 260, 0, 150)
+frame.Size = UDim2.new(0, 260, 0, 180)
 frame.Position = UDim2.new(0, 10, 0, 10)
 frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
 local text = Instance.new("TextLabel")
-text.Size = UDim2.new(1, -10, 0, 100)
+text.Size = UDim2.new(1, -10, 0, 130)
 text.Position = UDim2.new(0, 5, 0, 5)
 text.BackgroundTransparency = 1
 text.TextColor3 = Color3.fromRGB(0, 255, 120)
@@ -32,17 +43,20 @@ text.TextXAlignment = Enum.TextXAlignment.Left
 text.TextYAlignment = Enum.TextYAlignment.Top
 text.Parent = frame
 
+-- INPUT TARGET
 local input = Instance.new("TextBox")
 input.Size = UDim2.new(1, -10, 0, 30)
 input.Position = UDim2.new(0, 5, 1, -35)
 input.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 input.TextColor3 = Color3.fromRGB(255,255,255)
-input.PlaceholderText = "Nhập mục tiêu (vd: 50000000)"
-input.Text = ""
+input.PlaceholderText = "Target (vd: 50000000)"
 input.Font = Enum.Font.Code
 input.TextSize = 14
 input.Parent = frame
 
+-- =========================
+-- STATS
+-- =========================
 local startTime = os.clock()
 local lastBeli = beli.Value
 local gainedTotal = 0
@@ -56,15 +70,17 @@ local function formatTime(sec)
 	return string.format("%02d:%02d:%02d", h, m, s)
 end
 
+-- =========================
+-- INPUT TARGET
+-- =========================
 input.FocusLost:Connect(function()
 	local num = tonumber(input.Text)
-	if num then
-		target = num
-	else
-		target = 0
-	end
+	target = num or 0
 end)
 
+-- =========================
+-- TRACK BELI (ONLY INCREASE)
+-- =========================
 beli:GetPropertyChangedSignal("Value"):Connect(function()
 	local now = beli.Value
 	local diff = now - lastBeli
@@ -78,17 +94,19 @@ beli:GetPropertyChangedSignal("Value"):Connect(function()
 	end
 end)
 
+-- =========================
+-- LOOP
+-- =========================
 task.spawn(function()
 	while task.wait(1) do
 		local elapsed = os.clock() - startTime
 		local perHour = elapsed > 0 and (gainedTotal / elapsed) * 3600 or 0
 
+		local current = beli.Value
+		local remaining = target - current
+
 		local eta = math.huge
-
 		if target > 0 and perHour > 0 then
-			local current = beli.Value
-			local remaining = target - current
-
 			if remaining <= 0 then
 				eta = 0
 			else
@@ -97,9 +115,10 @@ task.spawn(function()
 		end
 
 		text.Text =
-			"Beli Farm: " .. gainedTotal .. "\n" ..
-			"Time Farm: " .. formatTime(elapsed) .. "\n" ..
-			"Beli/Hour: " .. math.floor(perHour) .. "\n" ..
+			"Beli hiện tại: " .. current .. "\n" ..
+			"Beli đã farm: " .. gainedTotal .. "\n" ..
+			"Thời gian farm: " .. formatTime(elapsed) .. "\n" ..
+			"Beli/giờ: " .. math.floor(perHour) .. "\n" ..
 			"Mục tiêu: " .. target .. "\n" ..
 			"Thời gian cần farm: " .. formatTime(eta)
 	end
