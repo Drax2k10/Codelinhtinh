@@ -1,14 +1,6 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-
--- =========================
--- CONFIG
--- =========================
 local MAX_SPIKE = 10_000_000
-
--- =========================
--- GET BELI
--- =========================
 local data = player:WaitForChild("Data", 10)
 local beli = data and data:WaitForChild("Beli", 10)
 
@@ -17,9 +9,6 @@ if not beli then
 	return
 end
 
--- =========================
--- GUI
--- =========================
 local gui = Instance.new("ScreenGui")
 gui.Name = "FarmStatsGUI"
 gui.ResetOnSpawn = false
@@ -43,7 +32,6 @@ text.TextXAlignment = Enum.TextXAlignment.Left
 text.TextYAlignment = Enum.TextYAlignment.Top
 text.Parent = frame
 
--- INPUT TARGET
 local input = Instance.new("TextBox")
 input.Size = UDim2.new(1, -10, 0, 30)
 input.Position = UDim2.new(0, 5, 1, -35)
@@ -54,9 +42,6 @@ input.Font = Enum.Font.Code
 input.TextSize = 14
 input.Parent = frame
 
--- =========================
--- STATS
--- =========================
 local startTime = os.clock()
 local lastBeli = beli.Value
 local gainedTotal = 0
@@ -70,41 +55,28 @@ local function formatTime(sec)
 	return string.format("%02d:%02d:%02d", h, m, s)
 end
 
--- =========================
--- INPUT TARGET
--- =========================
 input.FocusLost:Connect(function()
 	local num = tonumber(input.Text)
 	target = num or 0
 end)
 
--- =========================
--- TRACK BELI (ONLY INCREASE)
--- =========================
 beli:GetPropertyChangedSignal("Value"):Connect(function()
 	local now = beli.Value
 	local diff = now - lastBeli
-
 	if diff > 0 and diff < MAX_SPIKE then
 		gainedTotal += diff
 	end
-
 	if diff >= 0 then
 		lastBeli = now
 	end
 end)
 
--- =========================
--- LOOP
--- =========================
 task.spawn(function()
 	while task.wait(1) do
 		local elapsed = os.clock() - startTime
 		local perHour = elapsed > 0 and (gainedTotal / elapsed) * 3600 or 0
-
 		local current = beli.Value
 		local remaining = target - current
-
 		local eta = math.huge
 		if target > 0 and perHour > 0 then
 			if remaining <= 0 then
