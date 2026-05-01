@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+local MAX_SPIKE = 10_000_000
 local data = player:WaitForChild("Data", 10)
 local beli = data and data:WaitForChild("Beli", 10)
 
@@ -14,7 +15,7 @@ gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 220, 0, 90)
+frame.Size = UDim2.new(0, 230, 0, 100)
 frame.Position = UDim2.new(0, 10, 0, 10)
 frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.BorderSizePixel = 0
@@ -43,12 +44,14 @@ end
 
 beli:GetPropertyChangedSignal("Value"):Connect(function()
 	local now = beli.Value
+	local diff = now - lastBeli
 
-	if now > lastBeli then
-		gainedTotal += (now - lastBeli)
+	if diff > 0 and diff < MAX_SPIKE then
+		gainedTotal += diff
 	end
-
-	lastBeli = now
+	if diff >= 0 then
+		lastBeli = now
+	end
 end)
 
 task.spawn(function()
@@ -57,8 +60,8 @@ task.spawn(function()
 		local perHour = elapsed > 0 and (gainedTotal / elapsed) * 3600 or 0
 
 		text.Text =
-			"Beli Gain: " .. tostring(gainedTotal) .. "\n" ..
-			"Time Farm: " .. formatTime(elapsed) .. "\n" ..
-			"Beli/Hour: " .. math.floor(perHour)
+			"💰 Beli Gain: " .. tostring(gainedTotal) .. "\n" ..
+			"⏱ Time: " .. formatTime(elapsed) .. "\n" ..
+			"📈 /Hour: " .. math.floor(perHour)
 	end
 end)
