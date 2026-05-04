@@ -31,7 +31,7 @@ gui.DisplayOrder = 2147483647
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- 🌑 BG phủ full
+-- 🌑 BG phủ toàn bộ
 local bg = Instance.new("Frame")
 bg.AnchorPoint = Vector2.new(0.5,0.5)
 bg.Position = UDim2.new(0.5,0,0.5,0)
@@ -41,43 +41,52 @@ bg.BackgroundTransparency = 0
 bg.ZIndex = 2147483647
 bg.Parent = gui
 
--- 📌 TEXT GIỮA (FIX CHỮ NHỎ LẠI)
+-- 📌 TEXT GIỮA (CHỮ NHỎ)
 local mainText = Instance.new("TextLabel")
-mainText.Size = UDim2.new(0,500,0,250)
-mainText.Position = UDim2.new(0.5,-250,0.5,-125)
+mainText.Size = UDim2.new(0,380,0,180)
+mainText.Position = UDim2.new(0.5,-190,0.5,-90)
 mainText.BackgroundTransparency = 1
 mainText.TextColor3 = Color3.fromRGB(0,255,150)
 mainText.Font = Enum.Font.Code
+
 mainText.TextScaled = false
-mainText.TextSize = 26
+mainText.TextSize = 16 -- 👈 nhỏ hẳn
+
 mainText.TextWrapped = true
 mainText.TextXAlignment = Enum.TextXAlignment.Left
 mainText.TextYAlignment = Enum.TextYAlignment.Top
+
+-- 🔒 Giới hạn size
+local constraint = Instance.new("UITextSizeConstraint")
+constraint.MinTextSize = 12
+constraint.MaxTextSize = 18
+constraint.Parent = mainText
+
 mainText.ZIndex = 2147483647
 mainText.Text = "Loading..."
 mainText.Parent = bg
 
--- 📊 FPS + PING
+-- 📊 FPS + PING (nhỏ)
 local statsText = Instance.new("TextLabel")
-statsText.Size = UDim2.new(0,220,0,40)
-statsText.Position = UDim2.new(1,-230,0,10)
+statsText.Size = UDim2.new(0,180,0,30)
+statsText.Position = UDim2.new(1,-190,0,10)
 statsText.BackgroundTransparency = 1
 statsText.TextColor3 = Color3.new(1,1,1)
 statsText.Font = Enum.Font.Code
-statsText.TextSize = 16
+statsText.TextSize = 14
 statsText.TextXAlignment = Enum.TextXAlignment.Right
 statsText.ZIndex = 2147483647
 statsText.Parent = bg
 
--- ❌ CLOSE
+-- ❌ CLOSE (gọn)
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0,120,0,35)
-closeBtn.Position = UDim2.new(1,-130,1,-50)
+closeBtn.Size = UDim2.new(0,100,0,30)
+closeBtn.Position = UDim2.new(1,-110,1,-40)
 closeBtn.Text = "CLOSE"
 closeBtn.BackgroundColor3 = Color3.fromRGB(120,0,0)
 closeBtn.TextColor3 = Color3.new(1,1,1)
 closeBtn.Font = Enum.Font.Code
-closeBtn.TextSize = 16
+closeBtn.TextSize = 14
 closeBtn.ZIndex = 2147483647
 closeBtn.Parent = bg
 
