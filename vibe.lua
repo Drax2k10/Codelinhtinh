@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local Stats = game:GetService("Stats")
 local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 
@@ -12,20 +13,35 @@ if not beli then
 	return
 end
 
--- GUI FULL SCREEN
+-- 🔥 LOCK LIGHTING (đen tuyệt đối)
+Lighting.Brightness = 0
+Lighting.ClockTime = 0
+Lighting.GlobalShadows = true
+Lighting.OutdoorAmbient = Color3.new(0,0,0)
+Lighting.Ambient = Color3.new(0,0,0)
+
+local blur = Instance.new("BlurEffect")
+blur.Size = 50
+blur.Parent = Lighting
+
+-- 🖥 GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "FullBlackUI"
+gui.Name = "FULL_BLACK_UI"
 gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 999999
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- 🌑 nền đen full
 local bg = Instance.new("Frame")
 bg.Size = UDim2.new(1,0,1,0)
 bg.Position = UDim2.new(0,0,0,0)
 bg.BackgroundColor3 = Color3.new(0,0,0)
-bg.BackgroundTransparency = 0.2
+bg.BackgroundTransparency = 0
+bg.ZIndex = 999999
 bg.Parent = gui
 
--- TEXT GIỮA MÀN HÌNH
+-- 📌 TEXT GIỮA
 local mainText = Instance.new("TextLabel")
 mainText.Size = UDim2.new(0.6,0,0.5,0)
 mainText.Position = UDim2.new(0.2,0,0.25,0)
@@ -34,43 +50,46 @@ mainText.TextColor3 = Color3.fromRGB(0,255,150)
 mainText.Font = Enum.Font.Code
 mainText.TextScaled = true
 mainText.TextWrapped = true
+mainText.ZIndex = 999999
 mainText.Text = "Loading..."
 mainText.Parent = bg
 
--- FPS + PING
+-- 📊 FPS + PING
 local statsText = Instance.new("TextLabel")
-statsText.Size = UDim2.new(0,200,0,50)
-statsText.Position = UDim2.new(1,-210,0,10)
+statsText.Size = UDim2.new(0,250,0,50)
+statsText.Position = UDim2.new(1,-260,0,10)
 statsText.BackgroundTransparency = 1
 statsText.TextColor3 = Color3.fromRGB(255,255,255)
 statsText.Font = Enum.Font.Code
-statsText.TextSize = 18
+statsText.TextSize = 20
 statsText.TextXAlignment = Enum.TextXAlignment.Right
+statsText.ZIndex = 999999
 statsText.Parent = bg
 
--- NÚT THOÁT
+-- ❌ NÚT THOÁT
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0,120,0,40)
-closeBtn.Position = UDim2.new(1,-130,1,-50)
+closeBtn.Size = UDim2.new(0,140,0,45)
+closeBtn.Position = UDim2.new(1,-150,1,-60)
 closeBtn.Text = "❌ CLOSE"
 closeBtn.BackgroundColor3 = Color3.fromRGB(120,0,0)
 closeBtn.TextColor3 = Color3.new(1,1,1)
 closeBtn.Font = Enum.Font.Code
-closeBtn.TextSize = 18
+closeBtn.TextSize = 20
+closeBtn.ZIndex = 999999
 closeBtn.Parent = bg
 
 closeBtn.MouseButton1Click:Connect(function()
 	gui:Destroy()
+	blur:Destroy()
 end)
 
--- CONFIG
+-- ⚙️ CONFIG
 local MAX_SPIKE = 10_000_000
 local startTime = os.clock()
 local lastBeli = beli.Value
 local gainedTotal = 0
-local target = 0
 
--- FPS
+-- 🎯 FPS TRACK
 local fps = 0
 local frameCount = 0
 local lastTime = tick()
@@ -84,7 +103,7 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- Beli tracking
+-- 💰 Beli TRACK
 beli:GetPropertyChangedSignal("Value"):Connect(function()
 	local now = beli.Value
 	local diff = now - lastBeli
@@ -98,7 +117,7 @@ beli:GetPropertyChangedSignal("Value"):Connect(function()
 	end
 end)
 
--- FORMAT TIME
+-- ⏱ FORMAT TIME
 local function formatTime(sec)
 	if sec == math.huge then return "∞" end
 	local h = math.floor(sec / 3600)
@@ -107,16 +126,18 @@ local function formatTime(sec)
 	return string.format("%02d:%02d:%02d", h, m, s)
 end
 
--- LOOP UPDATE
+-- 🔁 LOOP UPDATE
 task.spawn(function()
 	while task.wait(1) do
 		local elapsed = os.clock() - startTime
 		local perHour = elapsed > 0 and (gainedTotal / elapsed) * 3600 or 0
-
 		local current = beli.Value
 
-		-- PING
-		local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+		-- 📡 PING
+		local ping = 0
+		pcall(function()
+			ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+		end)
 
 		statsText.Text = "FPS: "..fps.." | Ping: "..ping.."ms"
 
