@@ -81,7 +81,8 @@ statsText.Parent = bg
 -- ❌ CLOSE (gọn)
 local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0,100,0,30)
-closeBtn.Position = UDim2.new(1,-110,1,-40)
+closeBtn.AnchorPoint = Vector2.new(1,0)
+closeBtn.Position = UDim2.new(1,-10,0,10) -- góc trên phải màn hình
 closeBtn.Text = "CLOSE"
 closeBtn.BackgroundColor3 = Color3.fromRGB(120,0,0)
 closeBtn.TextColor3 = Color3.new(1,1,1)
