@@ -2,9 +2,17 @@ local Players = game:GetService("Players")
 local Stats = game:GetService("Stats")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
 
 local player = Players.LocalPlayer
 
+-- 🔒 TẮT CORE GUI (top bar, backpack...)
+pcall(function()
+	StarterGui:SetCore("TopbarEnabled", false)
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+end)
+
+-- 📊 DATA
 local data = player:WaitForChild("Data", 10)
 local beli = data and data:WaitForChild("Beli", 10)
 
@@ -13,7 +21,7 @@ if not beli then
 	return
 end
 
--- 🔥 LOCK LIGHTING (đen tuyệt đối)
+-- 🌑 LOCK ÁNH SÁNG (đen tuyệt đối)
 Lighting.Brightness = 0
 Lighting.ClockTime = 0
 Lighting.GlobalShadows = true
@@ -21,7 +29,7 @@ Lighting.OutdoorAmbient = Color3.new(0,0,0)
 Lighting.Ambient = Color3.new(0,0,0)
 
 local blur = Instance.new("BlurEffect")
-blur.Size = 50
+blur.Size = 60
 blur.Parent = Lighting
 
 -- 🖥 GUI
@@ -32,10 +40,11 @@ gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- 🌑 nền đen full
+-- 🌑 FRAME FULL + CHỐNG HỞ
 local bg = Instance.new("Frame")
-bg.Size = UDim2.new(1,0,1,0)
-bg.Position = UDim2.new(0,0,0,0)
+bg.AnchorPoint = Vector2.new(0.5, 0.5)
+bg.Position = UDim2.new(0.5, 0, 0.5, 0)
+bg.Size = UDim2.new(2, 0, 2, 0) -- 👈 phủ dư để không bao giờ hở
 bg.BackgroundColor3 = Color3.new(0,0,0)
 bg.BackgroundTransparency = 0
 bg.ZIndex = 999999
@@ -81,6 +90,12 @@ closeBtn.Parent = bg
 closeBtn.MouseButton1Click:Connect(function()
 	gui:Destroy()
 	blur:Destroy()
+
+	-- bật lại UI Roblox
+	pcall(function()
+		StarterGui:SetCore("TopbarEnabled", true)
+		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
+	end)
 end)
 
 -- ⚙️ CONFIG
@@ -89,7 +104,7 @@ local startTime = os.clock()
 local lastBeli = beli.Value
 local gainedTotal = 0
 
--- 🎯 FPS TRACK
+-- 🎯 FPS
 local fps = 0
 local frameCount = 0
 local lastTime = tick()
@@ -103,7 +118,7 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- 💰 Beli TRACK
+-- 💰 TRACK BELI
 beli:GetPropertyChangedSignal("Value"):Connect(function()
 	local now = beli.Value
 	local diff = now - lastBeli
@@ -126,14 +141,13 @@ local function formatTime(sec)
 	return string.format("%02d:%02d:%02d", h, m, s)
 end
 
--- 🔁 LOOP UPDATE
+-- 🔁 UPDATE LOOP
 task.spawn(function()
 	while task.wait(1) do
 		local elapsed = os.clock() - startTime
 		local perHour = elapsed > 0 and (gainedTotal / elapsed) * 3600 or 0
 		local current = beli.Value
 
-		-- 📡 PING
 		local ping = 0
 		pcall(function()
 			ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
